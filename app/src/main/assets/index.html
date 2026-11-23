@@ -1,12 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nitya Foods</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitya Foods</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+header {
+    background: linear-gradient(135deg, #b71c1c, #e65100);
+    color: white;
+    padding: 22px 18px;
+    border-radius: 0 0 22px 22px;
+}
+
+header h1 {
+    font-size: 26px;
+}
+
+header p {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.container {
+    padding: 15px;
+    max-width: 700px;
+    margin: auto;
+}
+
+.date {
+    font-size: 14px;
+    margin: 10px 0 16px;
+    color: #666;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 17px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.amount {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.sales { color: #16803c; }
+.expenses { color: #d84315; }
+.profit { color: #1565c0; }
+.upi { color: #6a1b9a; }
+
+.section {
+    background: white;
+    margin-top: 16px;
+    border-radius: 15px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    margin: 12px 0 6px;
+    color: #555;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    font-size: 16px;
+    background: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 9px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.add-sale {
+    background: #16803c;
+}
+
+.add-expense {
+    background: #d84315;
+}
+
+.small-button {
+    background: #455a64;
+}
+
+.entry {
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+    font-size: 14px;
+}
+
+.entry:last-child {
+    border-bottom: none;
+}
+
+.entry strong {
+    float: right;
+}
+
+.empty {
+    color: #888;
+    font-size: 14px;
+    padding: 8px 0;
+}
+
+footer {
+    text-align: center;
+    padding: 25px 10px;
+    color: #888;
+    font-size: 12px;
+}
+
+</style>
 </head>
+
 <body>
-    <h1>Nitya Panipuri</h1>
-    <p>Daily Sales, Expenses, Stock and Profit Manager</p>
+
+<header>
+    <h1>🥣 Nitya Foods</h1>
+    <p>Daily Sales • Expenses • Stock • Profit</p>
+</header>
+
+<div class="container">
+
+    <div class="date" id="today"></div>
+
+    <!-- DASHBOARD -->
+    <div class="cards">
+
+        <div class="card">
+            <h3>💰 Today's Sales</h3>
+            <div class="amount sales" id="totalSales">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>💸 Today's Expenses</h3>
+            <div class="amount expenses" id="totalExpenses">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>📈 Net Balance</h3>
+            <div class="amount profit" id="netBalance">₹0</div>
+        </div>
+
+        <div class="card">
+            <h3>📲 UPI Sales</h3>
+            <div class="amount upi" id="totalUPI">₹0</div>
+        </div>
+
+    </div>
+
+    <!-- ADD SALE -->
+    <div class="section">
+        <h2>🛒 Add Sale</h2>
+
+        <label>Food Item</label>
+        <select id="saleItem">
+            <option value="Panipuri">Panipuri</option>
+            <option value="Bhel">Bhel</option>
+            <option value="Dahi Puri">Dahi Puri</option>
+            <option value="Sev Puri">Sev Puri</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label>Quantity</label>
+        <input type="number" id="saleQty" min="1" value="1">
+
+        <label>Price per plate (₹)</label>
+        <input type="number" id="salePrice" min="0" value="20">
+
+        <label>Payment Method</label>
+        <select id="salePayment">
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+        </select>
+
+        <button class="add-sale" onclick="addSale()">➕ Add Sale</button>
+    </div>
+
+    <!-- ADD EXPENSE -->
+    <div class="section">
+        <h2>🧾 Add Expense</h2>
+
+        <label>Expense Name</label>
+        <input type="text" id="expenseName" placeholder="e.g. Potatoes, Oil, Gas">
+
+        <label>Amount (₹)</label>
+        <input type="number" id="expenseAmount" min="0" placeholder="Enter amount">
+
+        <button class="add-expense" onclick="addExpense()">➕ Add Expense</button>
+    </div>
+
+    <!-- SALES HISTORY -->
+    <div class="section">
+        <h2>📋 Today's Transactions</h2>
+        <div id="transactionList"></div>
+    </div>
+
+    <!-- RESET -->
+    <div class="section">
+        <h2>⚙️ Day Management</h2>
+        <p style="font-size:13px;color:#666">
+            This clears today's sales and expenses from this device.
+        </p>
+        <button class="small-button" onclick="clearToday()">Clear Today's Data</button>
+    </div>
+
+</div>
+
+<footer>
+    Nitya Foods • Daily Business Manager
+</footer>
+
+<script>
+const STORAGE_KEY = "nityaFoodsData_v1";
+
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
+    sales: [],
+    expenses: []
+};
+
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function money(amount) {
+    return "₹" + Number(amount).toFixed(0);
+}
+
+function todayString() {
+    return new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+
+document.getElementById("today").textContent = "📅 " + todayString();
+
+function addSale() {
+    const item = document.getElementById("saleItem").value;
+    const qty = Number(document.getElementById("saleQty").value);
+    const price = Number(document.getElementById("salePrice").value);
+    const payment = document.getElementById("salePayment").value;
+
+    if (qty <= 0 || price < 0) {
+        alert("Please enter a valid quantity and price.");
+        return;
+    }
+
+    data.sales.push({
+        item: item,
+        qty: qty,
+        price: price,
+        total: qty * price,
+        payment: payment,
+        time: new Date().toLocaleTimeString("en-IN")
+    });
+
+    saveData();
+    render();
+
+    document.getElementById("saleQty").value = 1;
+}
+
+function addExpense() {
+    const name = document.getElementById("expenseName").value.trim();
+    const amount = Number(document.getElementById("expenseAmount").value);
+
+    if (!name || amount <= 0) {
+        alert("Please enter expense name and amount.");
+        return;
+    }
+
+    data.expenses.push({
+        name: name,
+        amount: amount,
+        time: new Date().toLocaleTimeString("en-IN")
+    });
+
+    saveData();
+    render();
+
+    document.getElementById("expenseName").value = "";
+    document.getElementById("expenseAmount").value = "";
+}
+
+function render() {
+    const sales = data.sales.reduce((sum, s) => sum + s.total, 0);
+    const expenses = data.expenses.reduce((sum, e) => sum + e.amount, 0);
+    const upi = data.sales
+        .filter(s => s.payment === "UPI")
+        .reduce((sum, s) => sum + s.total, 0);
+
+    document.getElementById("totalSales").textContent = money(sales);
+    document.getElementById("totalExpenses").textContent = money(expenses);
+    document.getElementById("netBalance").textContent = money(sales - expenses);
+    document.getElementById("totalUPI").textContent = money(upi);
+
+    const list = document.getElementById("transactionList");
+    list.innerHTML = "";
+
+    if (data.sales.length === 0 && data.expenses.length === 0) {
+        list.innerHTML = '<div class="empty">No transactions recorded yet.</div>';
+        return;
+    }
+
+    data.sales.slice().reverse().forEach(s => {
+        list.innerHTML += `
+            <div class="entry">
+                🛒 ${s.item} × ${s.qty}
+                <small>(${s.payment} • ${s.time})</small>
+                <strong class="sales">${money(s.total)}</strong>
+            </div>
+        `;
+    });
+
+    data.expenses.slice().reverse().forEach(e => {
+        list.innerHTML += `
+            <div class="entry">
+                🧾 ${e.name}
+                <small>(${e.time})</small>
+                <strong class="expenses">-${money(e.amount)}</strong>
+            </div>
+        `;
+    });
+}
+
+function clearToday() {
+    if (confirm("Are you sure you want to clear all today's sales and expenses?")) {
+        data = {
+            sales: [],
+            expenses: []
+        };
+        saveData();
+        render();
+    }
+}
+
+render();
+</script>
+
 </body>
 </html>
